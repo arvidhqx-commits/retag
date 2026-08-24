@@ -1,0 +1,15 @@
+name: ReTag
+version: '${version}'
+main: dev.retag.ReTagPlugin
+api-version: '1.21'
+description: Modern nametag prefixes & suffixes. Drop-in successor to NametagEdit with data import.
+commands:
+  retag:
+    description: ReTag admin command
+    permission: retag.admin
+  nte:
+    description: NametagEdit-compatible alias
+    permission: retag.admin
+permissions:
+  retag.admin:
+    default: op
