@@ -10,5 +10,5 @@ your /nte commands keep working too.
 ✔ Group & per-player prefixes/suffixes  ✔ Tab-list sorting by group weight
 ✔ Legacy & codes AND MiniMessage gradients  ✔ No dependencies, tiny jar  ✔ Actively maintained for every new Minecraft version — that's the whole point of this plugin.
 
-**Kategorien/Tags:** chat, cosmetic, admin tools, 1.21, 26.x
+**Kategorien/Tags:** chat, cosmetic, admin tools, 1.21.x–26.2 (getestet auf 1.21.11 und 26.2)
 **Support:** GitHub Issues (Repo noch anzulegen — braucht Account)
