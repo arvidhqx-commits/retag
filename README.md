@@ -27,3 +27,13 @@ Permission: `retag.admin` (default: op)
 
 ## Build
 JDK 21, `gradle shadowJar` → `build/libs/retag-x.y.z-all.jar`
+
+## Tested on
+Paper 1.21.11 and Paper 26.2 (runtime-tested, not just "it loads").
+
+## License
+MIT — see [LICENSE](LICENSE).
+
+## Development note
+This project is **AI-assisted**: the code is written with Claude under the direction, testing and
+release approval of the maintainer. Every release is run against a live Paper server before it ships.
