@@ -77,13 +77,20 @@ public final class TagService {
     }
 
     private String teamName(int weight, Player player) {
+        return teamName(weight, player.getName(), player.getUniqueId());
+    }
+
+    /**
+     * Same computation without needing a Player, so it can be asserted directly.
+     * Team names are limited; 3-digit sort + 8 chars of the name keeps it unique enough,
+     * plus 4 chars of UUID to avoid collisions between same-prefix names.
+     */
+    static String teamName(int weight, String playerName, java.util.UUID uuid) {
         int sort = MAX_WEIGHT - Math.min(Math.max(weight, 0), MAX_WEIGHT);
-        // Team names are limited; 3-digit sort + 8 chars of the name keeps it unique enough,
-        // plus 4 chars of UUID to avoid collisions between same-prefix names.
-        String base = player.getName().toLowerCase(Locale.ROOT);
+        String base = playerName.toLowerCase(Locale.ROOT);
         if (base.length() > 8) base = base.substring(0, 8);
         return TEAM_PREFIX + String.format("%03d", sort) + "_" + base + "_"
-                + player.getUniqueId().toString().substring(0, 4);
+                + uuid.toString().substring(0, 4);
     }
 
     public void remove(Player player) {

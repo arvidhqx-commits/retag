@@ -17,6 +17,17 @@ public final class NametagEditImporter {
 
     private NametagEditImporter() {}
 
+    private static YamlConfiguration flatLoad(File file, Logger log) {
+        YamlConfiguration yml = new YamlConfiguration();
+        yml.options().pathSeparator('\u0001');
+        try {
+            yml.load(file);
+        } catch (java.io.IOException | org.bukkit.configuration.InvalidConfigurationException e) {
+            log.warning("Import: could not read " + file.getName() + ": " + e.getMessage());
+        }
+        return yml;
+    }
+
     /** @return summary line, or null if no NametagEdit data was found. */
     public static String importInto(Storage storage, File pluginsDir, Logger log) {
         File nteDir = new File(pluginsDir, "NametagEdit");
@@ -27,7 +38,10 @@ public final class NametagEditImporter {
 
         File groupsFile = new File(nteDir, "groups.yml");
         if (groupsFile.exists()) {
-            YamlConfiguration yml = YamlConfiguration.loadConfiguration(groupsFile);
+            // Same dot-in-name trap as in Storage: NametagEdit group names are
+            // foreign data and may contain a dot. The separator must be set before
+            // loading, because loading itself builds the tree with set().
+            YamlConfiguration yml = flatLoad(groupsFile, log);
             ConfigurationSection root = yml.getConfigurationSection("Groups");
             if (root != null) {
                 for (String name : root.getKeys(false)) {
@@ -50,7 +64,7 @@ public final class NametagEditImporter {
 
         File playersFile = new File(nteDir, "players.yml");
         if (playersFile.exists()) {
-            YamlConfiguration yml = YamlConfiguration.loadConfiguration(playersFile);
+            YamlConfiguration yml = flatLoad(playersFile, log);
             ConfigurationSection root = yml.getConfigurationSection("Players");
             if (root != null) {
                 for (String key : root.getKeys(false)) {

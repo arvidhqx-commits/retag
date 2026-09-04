@@ -14,6 +14,34 @@ import java.util.logging.Logger;
 /** YAML persistence for groups and player overrides. */
 public final class Storage {
 
+    /**
+     * Group names come from foreign data (NametagEdit) and may contain a dot.
+     * Bukkit reads '.' as a path separator, which silently turned a group
+     * "vip.plus" into a nested section and back into a group "vip". A separator
+     * that cannot occur in a name switches that off.
+     */
+    private static final char SEP = '\u0001';
+
+    private static YamlConfiguration flat() {
+        YamlConfiguration yml = new YamlConfiguration();
+        yml.options().pathSeparator(SEP);
+        return yml;
+    }
+
+    /**
+     * The separator must be set BEFORE loading: loadConfiguration() already builds
+     * the section tree with set(), so a dotted key would have been split by then.
+     */
+    private static YamlConfiguration flatLoad(File file, Logger log) {
+        YamlConfiguration yml = flat();
+        try {
+            yml.load(file);
+        } catch (IOException | org.bukkit.configuration.InvalidConfigurationException e) {
+            log.warning("Could not read " + file.getName() + ": " + e.getMessage());
+        }
+        return yml;
+    }
+
     private final File groupsFile;
     private final File playersFile;
     private final Logger log;
@@ -32,7 +60,7 @@ public final class Storage {
         players.clear();
 
         if (groupsFile.exists()) {
-            YamlConfiguration yml = YamlConfiguration.loadConfiguration(groupsFile);
+            YamlConfiguration yml = flatLoad(groupsFile, log);
             ConfigurationSection root = yml.getConfigurationSection("groups");
             if (root != null) {
                 for (String name : root.getKeys(false)) {
@@ -49,7 +77,7 @@ public final class Storage {
         }
 
         if (playersFile.exists()) {
-            YamlConfiguration yml = YamlConfiguration.loadConfiguration(playersFile);
+            YamlConfiguration yml = flatLoad(playersFile, log);
             ConfigurationSection root = yml.getConfigurationSection("players");
             if (root != null) {
                 for (String key : root.getKeys(false)) {
@@ -70,17 +98,17 @@ public final class Storage {
     }
 
     public void save() {
-        YamlConfiguration g = new YamlConfiguration();
+        YamlConfiguration g = flat();
         for (GroupData group : groups.values()) {
-            String base = "groups." + group.name + ".";
+            String base = "groups" + SEP + group.name + SEP;
             g.set(base + "prefix", group.prefix);
             g.set(base + "suffix", group.suffix);
             g.set(base + "weight", group.weight);
             g.set(base + "permission", group.permission);
         }
-        YamlConfiguration p = new YamlConfiguration();
+        YamlConfiguration p = flat();
         for (Map.Entry<UUID, PlayerData> e : players.entrySet()) {
-            String base = "players." + e.getKey() + ".";
+            String base = "players" + SEP + e.getKey() + SEP;
             p.set(base + "prefix", e.getValue().prefix);
             p.set(base + "suffix", e.getValue().suffix);
         }
